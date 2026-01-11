@@ -1,0 +1,86 @@
+<div class="products-container">
+  <div class="page-header">
+    <h1>Products</h1>
+    <button class="btn btn-primary" (click)="openCreateForm()">Add New Product</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Loading products...</div>
+  } @else if (error) {
+    <div class="error-message">
+      <p><strong>Error:</strong> {{ error }}</p>
+      <button (click)="loadProducts()" class="btn-retry">Retry</button>
+    </div>
+  } @else if (products.length === 0) {
+    <div class="empty-state">
+      <p>No products found.</p>
+      <p class="empty-hint">Products will appear here once they are added to the system.</p>
+      <button class="btn btn-primary" (click)="openCreateForm()">Add Your First Product</button>
+    </div>
+  } @else {
+    <div class="products-table-container">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product._id) {
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.sku }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.quantity }} {{ product.unit }}</td>
+              <td>{{ formatCurrency(product.pricePerUnit) }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + product.status">
+                  {{ product.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <div class="action-buttons">
+                  <button class="btn-icon btn-view" (click)="viewProduct(product)" title="View Details">
+                    View
+                  </button>
+                  <button class="btn-icon btn-edit" (click)="openEditForm(product)" title="Edit">
+                    Edit
+                  </button>
+                  <button
+                    class="btn-icon btn-delete"
+                    (click)="deleteProduct(product)"
+                    [disabled]="isDeleting && deletingProductId === product._id"
+                    title="Delete"
+                  >
+                    @if (isDeleting && deletingProductId === product._id) {
+                      Deleting...
+                    } @else {
+                      Delete
+                    }
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="pagination-info">
+        Showing {{ products.length }} of {{ total }} products
+      </div>
+    </div>
+  }
+</div>
+
+<app-product-form
+  [product]="selectedProduct"
+  [isOpen]="showProductForm"
+  (close)="closeProductForm()"
+  (save)="onSaveProduct($event)"
+></app-product-form>

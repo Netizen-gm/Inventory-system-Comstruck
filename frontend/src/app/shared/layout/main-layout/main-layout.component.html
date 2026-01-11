@@ -1,0 +1,63 @@
+<div class="layout-container">
+  <nav class="sidebar" [class.open]="isMenuOpen">
+    <div class="sidebar-header">
+      <h2>Inventory System</h2>
+    </div>
+
+    <ul class="nav-menu">
+      @if (canAccessDashboard) {
+        <li>
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <span class="icon">📊</span>
+            Dashboard
+          </a>
+        </li>
+      }
+      @if (canAccessProducts) {
+        <li>
+          <a routerLink="/products" routerLinkActive="active">
+            <span class="icon">📦</span>
+            Products
+          </a>
+        </li>
+      }
+      @if (canAccessSales) {
+        <li>
+          <a routerLink="/sales" routerLinkActive="active">
+            <span class="icon">💰</span>
+            Sales
+          </a>
+        </li>
+      }
+      @if (canAccessStaff) {
+        <li>
+          <a routerLink="/staff" routerLinkActive="active">
+            <span class="icon">👥</span>
+            Staff
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-name">{{ user?.firstName || user?.email }}</div>
+        <div class="user-role">{{ user?.role }}</div>
+      </div>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="header">
+      <button class="menu-toggle" (click)="toggleMenu()">
+        <span>☰</span>
+      </button>
+      <h1 class="page-title">Inventory Management</h1>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

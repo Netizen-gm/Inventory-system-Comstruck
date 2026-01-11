@@ -1,0 +1,192 @@
+@if (isOpen) {
+  <div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h2>
+        <button type="button" class="close-button" (click)="onCancel()">&times;</button>
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
+        @if (errorMessage) {
+          <div class="error-message">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Product Name <span class="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              formControlName="name"
+              class="form-control"
+              [class.error]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+            />
+            @if (productForm.get('name')?.invalid && productForm.get('name')?.touched) {
+              <span class="error-text">Product name is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="sku">SKU <span class="required">*</span></label>
+            <input
+              type="text"
+              id="sku"
+              formControlName="sku"
+              class="form-control"
+              [class.error]="productForm.get('sku')?.invalid && productForm.get('sku')?.touched"
+              [readonly]="isEditMode"
+            />
+            @if (productForm.get('sku')?.invalid && productForm.get('sku')?.touched) {
+              <span class="error-text">SKU is required</span>
+            }
+            @if (isEditMode) {
+              <small class="hint">SKU cannot be changed after creation</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category <span class="required">*</span></label>
+            <input
+              type="text"
+              id="category"
+              formControlName="category"
+              class="form-control"
+              [class.error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+            />
+            @if (productForm.get('category')?.invalid && productForm.get('category')?.touched) {
+              <span class="error-text">Category is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="unit">Unit <span class="required">*</span></label>
+            <input
+              type="text"
+              id="unit"
+              formControlName="unit"
+              class="form-control"
+              placeholder="e.g., bag, kg, ton"
+              [class.error]="productForm.get('unit')?.invalid && productForm.get('unit')?.touched"
+            />
+            @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
+              <span class="error-text">Unit is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantity <span class="required">*</span></label>
+            <input
+              type="number"
+              id="quantity"
+              formControlName="quantity"
+              class="form-control"
+              min="0"
+              [class.error]="productForm.get('quantity')?.invalid && productForm.get('quantity')?.touched"
+            />
+            @if (productForm.get('quantity')?.invalid && productForm.get('quantity')?.touched) {
+              <span class="error-text">Quantity must be 0 or greater</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="minStock">Minimum Stock <span class="required">*</span></label>
+            <input
+              type="number"
+              id="minStock"
+              formControlName="minStock"
+              class="form-control"
+              min="0"
+              [class.error]="productForm.get('minStock')?.invalid && productForm.get('minStock')?.touched"
+            />
+            @if (productForm.get('minStock')?.invalid && productForm.get('minStock')?.touched) {
+              <span class="error-text">Minimum stock must be 0 or greater</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="maxStock">Maximum Stock</label>
+            <input
+              type="number"
+              id="maxStock"
+              formControlName="maxStock"
+              class="form-control"
+              min="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="pricePerUnit">Price Per Unit <span class="required">*</span></label>
+            <input
+              type="number"
+              id="pricePerUnit"
+              formControlName="pricePerUnit"
+              class="form-control"
+              step="0.01"
+              min="0"
+              [class.error]="productForm.get('pricePerUnit')?.invalid && productForm.get('pricePerUnit')?.touched"
+            />
+            @if (productForm.get('pricePerUnit')?.invalid && productForm.get('pricePerUnit')?.touched) {
+              <span class="error-text">Price must be 0 or greater</span>
+            }
+          </div>
+
+          @if (isEditMode) {
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" formControlName="status" class="form-control">
+                @for (status of productStatuses; track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input
+              type="text"
+              id="location"
+              formControlName="location"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="supplier">Supplier</label>
+            <input
+              type="text"
+              id="supplier"
+              formControlName="supplier"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isSubmitting">
+            @if (isSubmitting) {
+              Saving...
+            } @else {
+              {{ isEditMode ? 'Update' : 'Create' }} Product
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

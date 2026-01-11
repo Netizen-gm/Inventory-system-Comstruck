@@ -1,0 +1,104 @@
+@import '../../products/products-list/products-list.component.scss';
+
+.staff-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.active {
+    background-color: #c6f6d5;
+    color: #22543d;
+  }
+
+  &.inactive {
+    background-color: #fed7d7;
+    color: #742a2a;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .empty-hint {
+    color: #718096;
+    margin: 1rem 0 2rem 0;
+  }
+}
+
+.actions-cell {
+  width: 200px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-icon {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.btn-view {
+    background-color: #edf2f7;
+    color: #4a5568;
+
+    &:hover:not(:disabled) {
+      background-color: #e2e8f0;
+    }
+  }
+
+  &.btn-edit {
+    background-color: #bee3f8;
+    color: #2c5282;
+
+    &:hover:not(:disabled) {
+      background-color: #90cdf4;
+    }
+  }
+
+  &.btn-delete {
+    background-color: #fed7d7;
+    color: #c53030;
+
+    &:hover:not(:disabled) {
+      background-color: #fc8181;
+    }
+  }
+}

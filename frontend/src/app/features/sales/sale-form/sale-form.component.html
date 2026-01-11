@@ -1,0 +1,188 @@
+@if (isOpen) {
+  <div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Sale' : 'Record New Sale' }}</h2>
+        <button type="button" class="close-button" (click)="onCancel()">&times;</button>
+      </div>
+
+      <form [formGroup]="saleForm" (ngSubmit)="onSubmit()" class="sale-form">
+        @if (errorMessage) {
+          <div class="error-message">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="saleDate">Sale Date</label>
+            <input
+              type="date"
+              id="saleDate"
+              formControlName="saleDate"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="staffId">Staff Member <span class="required">*</span></label>
+            @if (isLoadingStaff) {
+              <div class="loading-text">Loading staff...</div>
+            } @else {
+              <select
+                id="staffId"
+                formControlName="staffId"
+                class="form-control"
+                [class.error]="saleForm.get('staffId')?.invalid && saleForm.get('staffId')?.touched"
+              >
+                <option value="">Select Staff Member</option>
+                @for (member of staff; track member._id) {
+                  <option [value]="member._id">
+                    {{ getStaffDisplayName(member) }}
+                  </option>
+                }
+              </select>
+            }
+            @if (saleForm.get('staffId')?.invalid && saleForm.get('staffId')?.touched) {
+              <span class="error-text">Staff member is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="productId">Product <span class="required">*</span></label>
+            @if (isLoadingProducts) {
+              <div class="loading-text">Loading products...</div>
+            } @else {
+              <select
+                id="productId"
+                formControlName="productId"
+                class="form-control"
+                [class.error]="saleForm.get('productId')?.invalid && saleForm.get('productId')?.touched"
+              >
+                <option value="">Select Product</option>
+                @for (product of products; track product._id) {
+                  <option [value]="product._id">
+                    {{ product.name }} ({{ product.sku }}) - {{ product.pricePerUnit | currency:'USD' }}
+                  </option>
+                }
+              </select>
+            }
+            @if (saleForm.get('productId')?.invalid && saleForm.get('productId')?.touched) {
+              <span class="error-text">Product is required</span>
+            }
+            @if (saleForm.get('productId')?.value && !isEditMode) {
+              <small class="hint">Price will auto-fill from product</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantity <span class="required">*</span></label>
+            <input
+              type="number"
+              id="quantity"
+              formControlName="quantity"
+              class="form-control"
+              step="0.01"
+              min="0.01"
+              [class.error]="saleForm.get('quantity')?.invalid && saleForm.get('quantity')?.touched"
+            />
+            @if (saleForm.get('quantity')?.invalid && saleForm.get('quantity')?.touched) {
+              <span class="error-text">Quantity must be greater than 0</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="unitPrice">Unit Price <span class="required">*</span></label>
+            <input
+              type="number"
+              id="unitPrice"
+              formControlName="unitPrice"
+              class="form-control"
+              step="0.01"
+              min="0"
+              [class.error]="saleForm.get('unitPrice')?.invalid && saleForm.get('unitPrice')?.touched"
+            />
+            @if (saleForm.get('unitPrice')?.invalid && saleForm.get('unitPrice')?.touched) {
+              <span class="error-text">Unit price must be 0 or greater</span>
+            }
+            @if (saleForm.get('productId')?.value && getSelectedProductPrice()) {
+              <small class="hint">Product price: {{ getSelectedProductPrice() | currency:'USD' }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method <span class="required">*</span></label>
+            <select
+              id="paymentMethod"
+              formControlName="paymentMethod"
+              class="form-control"
+              [class.error]="saleForm.get('paymentMethod')?.invalid && saleForm.get('paymentMethod')?.touched"
+            >
+              @for (method of paymentMethods; track method) {
+                <option [value]="method">{{ method | titlecase }}</option>
+              }
+            </select>
+            @if (saleForm.get('paymentMethod')?.invalid && saleForm.get('paymentMethod')?.touched) {
+              <span class="error-text">Payment method is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="customerName">Customer Name</label>
+            <input
+              type="text"
+              id="customerName"
+              formControlName="customerName"
+              class="form-control"
+              placeholder="Optional"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="customerPhone">Customer Phone</label>
+            <input
+              type="tel"
+              id="customerPhone"
+              formControlName="customerPhone"
+              class="form-control"
+              placeholder="Optional"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="notes">Notes</label>
+            <textarea
+              id="notes"
+              formControlName="notes"
+              class="form-control"
+              rows="3"
+              placeholder="Additional notes (optional)"
+            ></textarea>
+          </div>
+
+          @if (!isEditMode && saleForm.get('quantity')?.value && saleForm.get('unitPrice')?.value) {
+            <div class="form-group full-width">
+              <div class="total-preview">
+                <strong>Total Amount:</strong> 
+                {{ (saleForm.get('quantity')?.value * saleForm.get('unitPrice')?.value) | currency:'USD' }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="saleForm.invalid || isSubmitting">
+            @if (isSubmitting) {
+              Saving...
+            } @else {
+              {{ isEditMode ? 'Update' : 'Record' }} Sale
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,84 @@
+<div class="staff-container">
+  <div class="page-header">
+    <h1>Staff</h1>
+    <button class="btn btn-primary" (click)="openCreateForm()">Add New Staff</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Loading staff...</div>
+  } @else if (error) {
+    <div class="error-message">
+      <p><strong>Error:</strong> {{ error }}</p>
+      <button (click)="loadStaff()" class="btn-retry">Retry</button>
+    </div>
+  } @else if (staff.length === 0) {
+    <div class="empty-state">
+      <p>No staff members found.</p>
+      <p class="empty-hint">Staff members will appear here once they are added to the system.</p>
+      <button class="btn btn-primary" (click)="openCreateForm()">Add Your First Staff Member</button>
+    </div>
+  } @else {
+    <div class="staff-table-container">
+      <table class="staff-table">
+        <thead>
+          <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (member of staff; track member._id) {
+            <tr>
+              <td>{{ member.employeeId }}</td>
+              <td>{{ getUserName(member) }}</td>
+              <td>{{ member.department || '-' }}</td>
+              <td>{{ member.position || '-' }}</td>
+              <td>
+                <span class="status-badge" [class.active]="member.isActive" [class.inactive]="!member.isActive">
+                  {{ member.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <div class="action-buttons">
+                  <button class="btn-icon btn-view" (click)="viewStaff(member)" title="View Details">
+                    View
+                  </button>
+                  <button class="btn-icon btn-edit" (click)="openEditForm(member)" title="Edit">
+                    Edit
+                  </button>
+                  <button
+                    class="btn-icon btn-delete"
+                    (click)="deleteStaff(member)"
+                    [disabled]="isDeleting && deletingStaffId === member._id"
+                    title="Delete"
+                  >
+                    @if (isDeleting && deletingStaffId === member._id) {
+                      Deleting...
+                    } @else {
+                      Delete
+                    }
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="pagination-info">
+        Showing {{ staff.length }} of {{ total }} staff members
+      </div>
+    </div>
+  }
+</div>
+
+<app-staff-form
+  [staff]="selectedStaff"
+  [isOpen]="showStaffForm"
+  (close)="closeStaffForm()"
+  (save)="onSaveStaff($event)"
+></app-staff-form>

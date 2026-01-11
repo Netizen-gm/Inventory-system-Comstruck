@@ -1,0 +1,112 @@
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Dashboard</h1>
+
+  @if (accessDeniedMessage) {
+    <div class="access-denied-message">
+      <p><strong>⚠️ Access Denied:</strong> {{ accessDeniedMessage }}</p>
+      <p class="hint">Please contact an administrator to update your role, or log in with an account that has the required permissions.</p>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading">Loading dashboard statistics...</div>
+  } @else if (error) {
+    <div class="error-message">{{ error }}</div>
+  } @else if (stats) {
+    <div class="stats-grid">
+      <div class="stat-card revenue">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>Daily Revenue</h3>
+          <p class="stat-value">{{ formatCurrency(stats.revenue.dailyRevenue) }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card revenue">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <h3>Monthly Revenue</h3>
+          <p class="stat-value">{{ formatCurrency(stats.revenue.monthlyRevenue) }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card sales">
+        <div class="stat-icon">📈</div>
+        <div class="stat-content">
+          <h3>Total Sales</h3>
+          <p class="stat-value">{{ stats.sales.totalSalesCount }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card stock">
+        <div class="stat-icon">📦</div>
+        <div class="stat-content">
+          <h3>Total Products</h3>
+          <p class="stat-value">{{ stats.summary.totalProducts }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card stock">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-content">
+          <h3>Low Stock Items</h3>
+          <p class="stat-value">{{ stats.stock.lowStockCount }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card stock">
+        <div class="stat-icon">❌</div>
+        <div class="stat-content">
+          <h3>Out of Stock</h3>
+          <p class="stat-value">{{ stats.stock.outOfStockCount }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="detail-card">
+        <h2>Stock Summary</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Total Stock Value:</span>
+            <span class="detail-value">{{ formatCurrency(stats.stock.totalStockValue) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total Quantity:</span>
+            <span class="detail-value">{{ stats.stock.totalQuantity }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">In Stock:</span>
+            <span class="detail-value">{{ stats.stock.inStockCount }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Low Stock:</span>
+            <span class="detail-value">{{ stats.stock.lowStockCount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h2>Revenue Summary</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Total Revenue:</span>
+            <span class="detail-value">{{ formatCurrency(stats.revenue.totalRevenue) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Daily Sales:</span>
+            <span class="detail-value">{{ stats.sales.dailySalesCount }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Monthly Sales:</span>
+            <span class="detail-value">{{ stats.sales.monthlySalesCount }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total Categories:</span>
+            <span class="detail-value">{{ stats.summary.totalCategories }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
