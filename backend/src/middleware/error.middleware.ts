@@ -94,7 +94,7 @@ const sendErrorProd = (err: AppError | Error, res: Response): void => {
 };
 
 /**
- * Global error handling middleware
+ * Global error handling middlewar
  */
 export const errorHandler = (
   err: Error | AppError,
@@ -108,7 +108,7 @@ export const errorHandler = (
   if (err instanceof mongoose.Error.ValidationError) {
     error = handleValidationError(err);
   } else if ((err as { code?: number }).code === 11000) {
-    error = handleDuplicateKeyError(err as { code: number; keyValue?: Record<string, unknown> });
+    error = handleDuplicateKeyError(err as unknown as { code: number; keyValue?: Record<string, unknown> });+
   } else if (err instanceof mongoose.Error.CastError) {
     error = handleCastError(err);
   } else if (err.name === 'JsonWebTokenError') {
@@ -143,3 +143,4 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
   const error = AppError.notFound(`Route ${req.originalUrl} not found`);
   next(error);
 };
+
