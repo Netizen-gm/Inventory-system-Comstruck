@@ -132,7 +132,7 @@ export const getAllProducts = async (
   const totalPages = Math.ceil(total / limitNumber);
 
   return {
-    data: products as IProduct[],
+    data: products as unknown as IProduct[],
     pagination: {
       page: pageNumber,
       limit: limitNumber,
@@ -318,8 +318,7 @@ export const getLowStockProducts = async (): Promise<IProduct[]> => {
     .sort({ quantity: 1 })
     .lean();
 
-  return products as IProduct[];
-};
+return products as unknown as IProduct[];};
 
 /**
  * Get dashboard statistics
