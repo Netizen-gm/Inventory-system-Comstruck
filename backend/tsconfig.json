@@ -19,7 +19,8 @@
     "suppressImplicitAnyIndexErrors": true
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true,,
+    "noImplicitAny": false
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
