@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { UserRole, ApprovalStatus } from '../../../core/models/user.model';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -21,7 +22,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -34,6 +35,8 @@ export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage = '';
   isLoading = false;
+  selectedRole: UserRole = UserRole.USER;
+  readonly UserRole = UserRole;
 
   constructor() {
     if (this.tokenStorage.isAuthenticated()) {
@@ -68,11 +71,20 @@ export class RegisterComponent {
     this.errorMessage = '';
 
     const { confirmPassword, ...userData } = this.registerForm.value;
+    if (this.selectedRole) {
+      userData.role = this.selectedRole;
+    }
 
     this.authService.register(userData).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
+        // If manager registration, show pending approval message
+        if (this.selectedRole === UserRole.MANAGER && response.data?.user.approvalStatus === ApprovalStatus.PENDING) {
+          alert('Your manager account registration is pending admin approval. You will be able to log in once approved.');
+          this.router.navigate(['/auth/login']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (error) => {
         this.isLoading = false;

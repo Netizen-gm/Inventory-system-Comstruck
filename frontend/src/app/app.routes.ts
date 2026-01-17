@@ -50,6 +50,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'users',
+        canActivate: [roleGuard([UserRole.ADMIN])],
+        loadComponent: () =>
+          import('./features/users/user-management/user-management.component').then(
+            (m) => m.UserManagementComponent
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

@@ -37,6 +37,14 @@
           </a>
         </li>
       }
+      @if (canAccessUsers) {
+        <li>
+          <a routerLink="/users" routerLinkActive="active">
+            <span class="icon">👤</span>
+            User Management
+          </a>
+        </li>
+      }
     </ul>
 
     <div class="sidebar-footer">

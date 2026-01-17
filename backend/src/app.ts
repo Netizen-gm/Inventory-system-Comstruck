@@ -124,11 +124,13 @@ import staffRoutes from './routes/staff.routes';
 import productsRoutes from './routes/products.routes';
 import salesRoutes from './routes/sales.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+import userRoutes from './routes/user.routes';
 app.use('/api/auth', authRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRoutes);
 
 // 404 handler (must be before error handler)
 app.use(notFoundHandler);

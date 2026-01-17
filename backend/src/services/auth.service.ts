@@ -1,4 +1,4 @@
-import { User, IUser, UserRole } from '../models/User.model';
+import { User, IUser, UserRole, ApprovalStatus } from '../models/User.model';
 import { Token, IToken, TokenType } from '../models/Token.model';
 import { AppError } from '../utils/AppError';
 import { signToken, JWTPayload } from '../utils/jwt.utils';
@@ -91,6 +91,12 @@ export const register = async (input: RegisterInput): Promise<RegisterResponse> 
     throw AppError.conflict('User with this email already exists');
   }
 
+  // If registering as manager, set approval status to pending
+  // Only admins can directly create approved managers
+  const approvalStatus = role === UserRole.MANAGER 
+    ? ApprovalStatus.PENDING 
+    : ApprovalStatus.APPROVED;
+
   // Create new user
   const user = await User.create({
     email,
@@ -98,6 +104,7 @@ export const register = async (input: RegisterInput): Promise<RegisterResponse> 
     firstName,
     lastName,
     role,
+    approvalStatus,
   });
 
   // Generate tokens
@@ -131,6 +138,16 @@ export const login = async (input: LoginInput): Promise<LoginResponse> => {
   // Check if user is active
   if (!user.isActive) {
     throw AppError.unauthorized('Account is deactivated');
+  }
+
+  // Check approval status for managers
+  if (user.role === UserRole.MANAGER) {
+    if (user.approvalStatus === ApprovalStatus.PENDING) {
+      throw AppError.unauthorized('Your manager account is pending approval. Please wait for admin approval.');
+    }
+    if (user.approvalStatus === ApprovalStatus.REJECTED) {
+      throw AppError.unauthorized('Your manager account request has been rejected. Please contact an administrator.');
+    }
   }
 
   // Verify password

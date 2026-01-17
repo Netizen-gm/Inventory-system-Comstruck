@@ -23,7 +23,7 @@ async function seedAdmin() {
     // Check if admin already exists
     const existingAdmin = await User.findOne({ email: ADMIN_EMAIL });
     if (existingAdmin) {
-      console.log(`✅ Admin user already exists: ${ADMIN_EMAIL}`);
+      console.log(`[SUCCESS] Admin user already exists: ${ADMIN_EMAIL}`);
       console.log('   To create a new admin, use a different email or delete the existing one.');
       await disconnectDatabase();
       process.exit(0);
@@ -40,19 +40,19 @@ async function seedAdmin() {
       isActive: true,
     });
 
-    console.log('✅ Admin user created successfully!');
+    console.log('[SUCCESS] Admin user created successfully!');
     console.log('');
     console.log('Admin Credentials:');
     console.log('  Email:', admin.email);
     console.log('  Password:', ADMIN_PASSWORD);
     console.log('  Role:', admin.role);
     console.log('');
-    console.log('⚠️  IMPORTANT: Change the password after first login!');
+    console.log('[WARNING] IMPORTANT: Change the password after first login!');
 
     await disconnectDatabase();
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error creating admin user:', error);
+    console.error('[ERROR] Error creating admin user:', error);
     await disconnectDatabase();
     process.exit(1);
   }

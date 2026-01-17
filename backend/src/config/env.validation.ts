@@ -24,7 +24,7 @@ const validateJWTSecret = (secret: string): void => {
   // Warn if using default/weak secret
   if (secret === 'your-super-secret-jwt-key' || secret.includes('secret')) {
     console.warn(
-      '⚠️  WARNING: Using weak or default JWT_SECRET. ' +
+      '[WARNING] Using weak or default JWT_SECRET. ' +
       'Please set a strong random secret in production!'
     );
   }

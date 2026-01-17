@@ -41,6 +41,10 @@ export class MainLayoutComponent {
     return !!this.user;
   }
 
+  get canAccessUsers(): boolean {
+    return this.user?.role === UserRole.ADMIN;
+  }
+
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {

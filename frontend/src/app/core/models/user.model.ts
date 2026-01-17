@@ -5,6 +5,12 @@ export enum UserRole {
   WAREHOUSE = 'warehouse',
 }
 
+export enum ApprovalStatus {
+  APPROVED = 'approved',
+  PENDING = 'pending',
+  REJECTED = 'rejected',
+}
+
 export interface User {
   _id: string;
   email: string;
@@ -12,6 +18,7 @@ export interface User {
   lastName?: string;
   role: UserRole;
   isActive: boolean;
+  approvalStatus?: ApprovalStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,6 +38,7 @@ export interface RegisterRequest {
   password: string;
   firstName?: string;
   lastName?: string;
+  role?: UserRole;
 }
 
 export interface AuthResponse {

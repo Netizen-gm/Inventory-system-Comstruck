@@ -1,0 +1,242 @@
+<div class="user-management-container">
+  <div class="page-header">
+    <h1>User Management</h1>
+  </div>
+
+  <!-- Pending Manager Approvals Section -->
+  <section class="pending-section">
+    <h2>Pending Manager Approvals</h2>
+    
+    @if (isLoadingPending) {
+      <div class="loading">Loading pending managers...</div>
+    } @else if (pendingError) {
+      <div class="error-message">
+        <p><strong>Error:</strong> {{ pendingError }}</p>
+        <button (click)="loadPendingManagers()" class="btn-retry">Retry</button>
+      </div>
+    } @else if (pendingManagers.length === 0) {
+      <div class="empty-state">
+        <p>No pending manager approvals.</p>
+      </div>
+    } @else {
+      <div class="pending-table-container">
+        <table class="pending-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Registered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of pendingManagers; track user._id) {
+              <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ getUserName(user) }}</td>
+                <td>{{ user.createdAt | date:'short' }}</td>
+                <td class="actions-cell">
+                  <div class="action-buttons">
+                    <button 
+                      class="btn btn-success" 
+                      (click)="approveManager(user._id, true)"
+                      [disabled]="isApproving && approvingUserId === user._id">
+                      @if (isApproving && approvingUserId === user._id) {
+                        Approving...
+                      } @else {
+                        Approve
+                      }
+                    </button>
+                    <button 
+                      class="btn btn-danger" 
+                      (click)="approveManager(user._id, false)"
+                      [disabled]="isApproving && approvingUserId === user._id">
+                      @if (isApproving && approvingUserId === user._id) {
+                        Rejecting...
+                      } @else {
+                        Reject
+                      }
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- All Users Section -->
+  <section class="users-section">
+    <h2>All Users</h2>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <input 
+          type="text" 
+          placeholder="Search by email or name..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="applyFilters()"
+          class="filter-input">
+        <select [(ngModel)]="selectedRole" class="filter-select">
+          <option value="">All Roles</option>
+          <option [value]="UserRole.ADMIN">Admin</option>
+          <option [value]="UserRole.MANAGER">Manager</option>
+          <option [value]="UserRole.WAREHOUSE">Warehouse</option>
+          <option [value]="UserRole.USER">User</option>
+        </select>
+        <select [(ngModel)]="selectedApprovalStatus" class="filter-select">
+          <option value="">All Approval Status</option>
+          <option [value]="ApprovalStatus.APPROVED">Approved</option>
+          <option [value]="ApprovalStatus.PENDING">Pending</option>
+          <option [value]="ApprovalStatus.REJECTED">Rejected</option>
+        </select>
+        <select [(ngModel)]="selectedActiveStatus" class="filter-select">
+          <option value="">All Status</option>
+          <option [value]="true">Active</option>
+          <option [value]="false">Inactive</option>
+        </select>
+        <button class="btn btn-primary" (click)="applyFilters()">Apply Filters</button>
+        <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
+      </div>
+    </div>
+
+    @if (isLoading) {
+      <div class="loading">Loading users...</div>
+    } @else if (error) {
+      <div class="error-message">
+        <p><strong>Error:</strong> {{ error }}</p>
+        <button (click)="loadUsers()" class="btn-retry">Retry</button>
+      </div>
+    } @else if (users.length === 0) {
+      <div class="empty-state">
+        <p>No users found.</p>
+      </div>
+    } @else {
+      <div class="users-table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Approval Status</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user._id) {
+              <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ getUserName(user) }}</td>
+                <td>
+                  <span class="role-badge" [class]="'role-' + user.role">
+                    {{ getRoleDisplayName(user.role) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="approval-badge" 
+                    [class.approved]="user.approvalStatus === ApprovalStatus.APPROVED"
+                    [class.pending]="user.approvalStatus === ApprovalStatus.PENDING"
+                    [class.rejected]="user.approvalStatus === ApprovalStatus.REJECTED">
+                    {{ getApprovalStatusDisplay(user.approvalStatus) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <div class="action-buttons">
+                    <button 
+                      class="btn-icon btn-edit" 
+                      (click)="openRoleDialog(user)"
+                      title="Change Role">
+                      Change Role
+                    </button>
+                    <button 
+                      class="btn-icon" 
+                      [class.btn-success]="!user.isActive"
+                      [class.btn-danger]="user.isActive"
+                      (click)="toggleUserStatus(user)"
+                      [disabled]="isUpdatingStatus && updatingStatusUserId === user._id"
+                      [title]="user.isActive ? 'Deactivate' : 'Activate'">
+                      @if (isUpdatingStatus && updatingStatusUserId === user._id) {
+                        Updating...
+                      } @else {
+                        {{ user.isActive ? 'Deactivate' : 'Activate' }}
+                      }
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button 
+            class="btn btn-secondary" 
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1">
+            Previous
+          </button>
+          <span class="page-info">
+            Page {{ currentPage }} of {{ totalPages }} ({{ total }} total)
+          </span>
+          <button 
+            class="btn btn-secondary" 
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages">
+            Next
+          </button>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- Role Change Dialog -->
+  @if (selectedUser) {
+    <div class="modal-overlay" (click)="closeRoleDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Change User Role</h3>
+          <button class="btn-close" (click)="closeRoleDialog()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>User:</strong> {{ selectedUser.email }}</p>
+          <p><strong>Current Role:</strong> {{ getRoleDisplayName(selectedUser.role) }}</p>
+          <div class="form-group">
+            <label for="newRole">New Role:</label>
+            <select id="newRole" [(ngModel)]="newRole" class="form-control">
+              <option [value]="UserRole.USER">User</option>
+              <option [value]="UserRole.WAREHOUSE">Warehouse</option>
+              <option [value]="UserRole.MANAGER">Manager</option>
+              <option [value]="UserRole.ADMIN">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRoleDialog()">Cancel</button>
+          <button 
+            class="btn btn-primary" 
+            (click)="updateUserRole()"
+            [disabled]="isUpdatingRole || selectedUser.role === newRole">
+            @if (isUpdatingRole) {
+              Updating...
+            } @else {
+              Update Role
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

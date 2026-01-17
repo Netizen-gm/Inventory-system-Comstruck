@@ -8,6 +8,7 @@ import {
 } from '../controllers/auth.controller';
 import { validate, commonSchemas } from '../middleware/validation.middleware';
 import { authenticate } from '../middleware/auth.middleware';
+import { UserRole } from '../models/User.model';
 
 const router = Router();
 
@@ -24,6 +25,12 @@ router.post(
       password: commonSchemas.password,
       firstName: commonSchemas.name,
       lastName: commonSchemas.name,
+      role: Joi.string()
+        .valid(UserRole.USER, UserRole.MANAGER)
+        .optional()
+        .messages({
+          'any.only': 'Role must be either "user" or "manager"',
+        }),
     }),
   }),
   register

@@ -26,5 +26,9 @@ export const API_CONFIG = {
     dashboard: {
       stats: '/dashboard/stats',
     },
+    users: {
+      base: '/users',
+      pendingManagers: '/users/pending-managers',
+    },
   },
 } as const;
